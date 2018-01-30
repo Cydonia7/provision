@@ -58,10 +58,11 @@
             state: latest
             update_cache: yes
 
-      - name: "Install font-manager (this can take a long time)"
+      - name: "Install Yaourt packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "yaourt --noconfirm  -S font-manager"
+        shell: "yaourt --noconfirm  -S font-manager docker docker-compose"
+        when: false
 
       - name: Remove sudo rule for yaourt
         file:
@@ -79,4 +80,14 @@
         become: true
         become_user: "{{user}}"
         shell: font-manager -i /tmp/operator-mono/src/Operator\ Mono
+
+      - name: Enable Docker service
+        shell: systemctl enable docker && systemctl start docker
+
+      - name: Add user to the docker group
+        shell: "gpasswd -a {{user}} docker"
+
+      - name: Reboot the machine
+        shell: "reboot"
+        when: false
 
