@@ -1,0 +1,82 @@
+---
+- hosts: all
+  vars:
+      user: cydo
+  tasks:
+      - name: Ensure user can use yaourt
+        shell: "sh -c \"echo '{{user}} ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/{{user}}-allow-to-sudo-pacman\""
+
+      - name: Install packages
+        pacman:
+            name: vim,zsh,git,terminator
+            state: latest
+            update_cache: yes
+
+      - name: Change shell for all users using bash to zsh
+        replace:
+            path: /etc/passwd
+            regexp: bash
+            replace: zsh
+
+      - name: Install Oh My Zsh
+        shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+        become: true
+        become_user: "{{user}}"
+        changed_when: "not omz_result.stdout|search('You already have Oh My Zsh installed.')"
+        register: omz_result
+
+      - name: Download dotfiles
+        become: true
+        become_user: "{{user}}"
+        git:
+            repo: https://github.com/Cydonia7/.dotfiles.git
+            dest: "/home/{{user}}/.dotfiles"
+
+      - name: Install dotfiles
+        become: true
+        become_user: "{{user}}"
+        shell: "/home/{{user}}/.dotfiles/setup"
+
+      - name: Install Vim plugins
+        become: true
+        become_user: "{{user}}"
+        shell: vim +PlugInstall +qall
+
+      - name: "Add archlinux.fr repository to pacman"
+        lineinfile:
+            dest: "/etc/pacman.conf"
+            state: "present"
+            line: "{{item}}"
+        with_items:
+            - "[archlinuxfr]"
+            - "SigLevel = Never"
+            - "Server = http://repo.archlinux.fr/$arch"
+
+      - name: "Install yaourt"
+        pacman:
+            name: yaourt
+            state: latest
+            update_cache: yes
+
+      - name: "Install font-manager (this can take a long time)"
+        become: true
+        become_user: "{{user}}"
+        shell: "yaourt --noconfirm  -S font-manager"
+
+      - name: Remove sudo rule for yaourt
+        file:
+            path: "/etc/sudoers.d/{{user}}-allow-to-sudo-pacman"
+            state: absent
+
+      - name: Donwload Operator Mono
+        become: true
+        become_user: "{{user}}"
+        git:
+            repo: https://github.com/coderJianXun/Operator-Mono.git
+            dest: /tmp/operator-mono
+
+      - name: Install Operator Mono
+        become: true
+        become_user: "{{user}}"
+        shell: font-manager -i /tmp/operator-mono/src/Operator\ Mono
+
