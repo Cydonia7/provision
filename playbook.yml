@@ -8,7 +8,7 @@
 
       - name: Install packages
         pacman:
-            name: vim,zsh,git,terminator
+            name: vim,zsh,git,terminator,dnsmasq
             state: latest
             update_cache: yes
 
@@ -84,12 +84,35 @@
       - name: Enable Docker service
         shell: systemctl enable docker && systemctl start docker
 
+      - name: Enable Dnsmasq service
+        shell: systemctl enable dnsmasq && systemctl start dnsmasq
+
       - name: Add user to the docker group
         shell: "gpasswd -a {{user}} docker"
 
       - name: Install jwilder's Docker proxy
         shell: docker run -d -p 80:80 --name=proxy --restart=always -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy && docker network create proxy && docker network connect proxy proxy
         when: false
+
+      - name: Use Dnsmasq as the first nameserver
+        shell: echo "nameserver 127.0.0.1" > /etc/resolv.conf.head
+
+      - name: Create Dnsmasq config directory
+        file:
+            path: /etc/dnsmasq.d
+            state: directory
+
+      - name: Configure *.docker domain name
+        shell: echo "local=/docker/" > /etc/dnsmasq.d/docker-tld && echo "address=/docker/127.0.0.1" > /etc/dnsmasq.d/docker-tld
+
+      - name: "Activate Dnsmasq configuration directory"
+        lineinfile:
+            dest: "/etc/dnsmasq.conf"
+            state: "present"
+            line: "conf-dir=/etc/dnsmasq.d"
+
+      - name: Restart Dnsmasq service
+        shell: systemctl restart dnsmasq
 
       - name: Reboot the machine
         shell: "reboot"
