@@ -62,7 +62,6 @@
         become: true
         become_user: "{{user}}"
         shell: "yaourt --noconfirm  -S font-manager docker docker-compose"
-        when: false
 
       - name: Remove sudo rule for yaourt
         file:
@@ -92,7 +91,6 @@
 
       - name: Install jwilder's Docker proxy
         shell: docker run -d -p 80:80 --name=proxy --restart=always -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy && docker network create proxy && docker network connect proxy proxy
-        when: false
 
       - name: Use Dnsmasq as the first nameserver
         shell: echo "nameserver 127.0.0.1" > /etc/resolv.conf.head
@@ -116,5 +114,4 @@
 
       - name: Reboot the machine
         shell: "reboot"
-        when: false
 
