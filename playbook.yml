@@ -128,7 +128,3 @@
             insertafter: "by startx"
         tags:
             - test
-
-      - name: Reboot the machine
-        shell: "reboot"
-
