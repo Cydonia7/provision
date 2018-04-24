@@ -61,7 +61,7 @@
       - name: "Install Yaourt packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme"
+        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx"
 
       - name: Remove sudo rule for yaourt
         file:
@@ -112,13 +112,22 @@
       - name: Restart Dnsmasq service
         shell: systemctl restart dnsmasq
 
-      - name: Update XFCE theme configuration
+      - name: Update XFCE theme configuration and enable XFCE numlock
         copy:
             src: "./{{item}}"
             dest: "/home/{{user}}/.config/xfce4/xfconf/xfce-perchannel-xml/{{item}}"
         with_items:
             - xfwm4.xml
             - xsettings.xml
+            - keyboards.xml
+     
+      - name: Enable numlock globally
+        lineinfile:
+            path: "/home/{{user}}/.xinitrc"
+            line: "numlockx &"
+            insertafter: "by startx"
+        tags:
+            - test
 
       - name: Reboot the machine
         shell: "reboot"
