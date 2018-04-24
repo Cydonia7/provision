@@ -68,7 +68,7 @@
             path: "/etc/sudoers.d/{{user}}-allow-to-sudo-pacman"
             state: absent
 
-      - name: Donwload Operator Mono
+      - name: Download Operator Mono
         become: true
         become_user: "{{user}}"
         git:
