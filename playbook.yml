@@ -61,7 +61,7 @@
       - name: "Install Yaourt packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "yaourt --noconfirm  -S font-manager docker docker-compose"
+        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme"
 
       - name: Remove sudo rule for yaourt
         file:
@@ -111,6 +111,14 @@
 
       - name: Restart Dnsmasq service
         shell: systemctl restart dnsmasq
+
+      - name: Update XFCE theme configuration
+        copy:
+            src: "./{{item}}"
+            dest: "/home/{{user}}/.config/xfce4/xfconf/xfce-perchannel-xml/{{item}}"
+        with_items:
+            - xfwm4.xml
+            - xsettings.xml
 
       - name: Reboot the machine
         shell: "reboot"
