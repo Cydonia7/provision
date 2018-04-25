@@ -61,7 +61,7 @@
       - name: "Install Yaourt packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx"
+        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher"
 
       - name: Remove sudo rule for yaourt
         file:
@@ -120,11 +120,20 @@
             - xfwm4.xml
             - xsettings.xml
             - keyboards.xml
+            - xfce4-desktop.xml
+      
+      - name: Download background
+        shell: "curl https://i.redd.it/ctjsjzuy6icz.jpg -o /home/{{user}}/Images/background.jpg"
+
+      - name: Set favorites for start menu
+        replace:
+            path: "/home/{{user}}/.config/xfce4/panel/whiskermenu-8.rc"
+            regexp: "favorites="
+            replace: "favorites=terminator.desktop,exo-web-browser.desktop"
      
       - name: Enable numlock globally
         lineinfile:
             path: "/home/{{user}}/.xinitrc"
             line: "numlockx &"
             insertafter: "by startx"
-        tags:
-            - test
+       
