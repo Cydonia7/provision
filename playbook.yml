@@ -3,7 +3,7 @@
   vars:
       user: cydo
   tasks:
-      - name: Ensure user can use yaourt
+      - name: Ensure user can use pacman (to bypass pacaur root protection)
         shell: "sh -c \"echo '{{user}} ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/{{user}}-allow-to-sudo-pacman\""
 
       - name: Install packages
@@ -25,22 +25,29 @@
         changed_when: "not omz_result.stdout|search('You already have Oh My Zsh installed.')"
         register: omz_result
 
+      - name: Check if dotfiles are already installed
+        stat: "path=/home/{{user}}/.dotfiles"
+        register: dotfiles
+
       - name: Download dotfiles
         become: true
         become_user: "{{user}}"
         git:
             repo: https://github.com/Cydonia7/.dotfiles.git
             dest: "/home/{{user}}/.dotfiles"
+        when: not dotfiles.stat.exists
 
       - name: Install dotfiles
         become: true
         become_user: "{{user}}"
         shell: "/home/{{user}}/.dotfiles/setup"
+        when: not dotfiles.stat.exists
 
       - name: Install Vim plugins
         become: true
         become_user: "{{user}}"
         shell: vim +PlugInstall +qall
+        when: not dotfiles.stat.exists
 
       - name: "Add archlinux.fr repository to pacman"
         lineinfile:
@@ -52,18 +59,18 @@
             - "SigLevel = Never"
             - "Server = http://repo.archlinux.fr/$arch"
 
-      - name: "Install yaourt"
+      - name: "Install pacaur"
         pacman:
-            name: yaourt
+            name: pacaur
             state: latest
             update_cache: yes
 
-      - name: "Install Yaourt packages (this can take a long time)"
+      - name: "Install AUR packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "yaourt --noconfirm  -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher"
+        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher"
 
-      - name: Remove sudo rule for yaourt
+      - name: Remove sudo rule for pacaur
         file:
             path: "/etc/sudoers.d/{{user}}-allow-to-sudo-pacman"
             state: absent
@@ -91,26 +98,32 @@
 
       - name: Install jwilder's Docker proxy
         shell: docker run -d -p 80:80 --name=proxy --restart=always -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy && docker network create proxy && docker network connect proxy proxy
+        when: not dotfiles.stat.exists
 
       - name: Use Dnsmasq as the first nameserver
         shell: echo "nameserver 127.0.0.1" > /etc/resolv.conf.head
+        when: not dotfiles.stat.exists
 
       - name: Create Dnsmasq config directory
         file:
             path: /etc/dnsmasq.d
             state: directory
+        when: not dotfiles.stat.exists
 
       - name: Configure *.docker domain name
         shell: echo "local=/docker/" > /etc/dnsmasq.d/docker-tld && echo "address=/docker/127.0.0.1" > /etc/dnsmasq.d/docker-tld
+        when: not dotfiles.stat.exists
 
       - name: "Activate Dnsmasq configuration directory"
         lineinfile:
             dest: "/etc/dnsmasq.conf"
             state: "present"
             line: "conf-dir=/etc/dnsmasq.d"
+        when: not dotfiles.stat.exists
 
       - name: Restart Dnsmasq service
         shell: systemctl restart dnsmasq
+        when: not dotfiles.stat.exists
 
       - name: Update XFCE theme configuration and enable XFCE numlock
         copy:
