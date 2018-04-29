@@ -68,7 +68,7 @@
       - name: "Install AUR packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher"
+        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher betterlockscreen"
 
       - name: Remove sudo rule for pacaur
         file:
@@ -137,6 +137,9 @@
       
       - name: Download background
         shell: "curl https://i.redd.it/ctjsjzuy6icz.jpg -o /home/{{user}}/Images/background.jpg"
+
+      - name: Update background for i3lock
+        shell: "betterlockscreen -u /home/{{user}}/Images/background.jpg"
 
       - name: Set favorites for start menu
         replace:
