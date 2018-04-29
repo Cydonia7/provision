@@ -140,6 +140,8 @@
 
       - name: Update background for i3lock
         shell: "betterlockscreen -u /home/{{user}}/Images/background.jpg"
+        become: true
+        become_user: "{{user}}"
 
       - name: Set favorites for start menu
         replace:
