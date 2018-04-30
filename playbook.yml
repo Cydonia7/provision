@@ -1,7 +1,5 @@
 ---
 - hosts: all
-  vars:
-      user: cydo
   tasks:
       - name: Ensure user can use pacman (to bypass pacaur root protection)
         shell: "sh -c \"echo '{{user}} ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/{{user}}-allow-to-sudo-pacman\""
