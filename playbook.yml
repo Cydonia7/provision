@@ -65,6 +65,11 @@
             state: latest
             update_cache: yes
 
+      - name: "Update existing packages"
+        become: true
+        become_user: "{{user}}"
+        shell: "pacaur --noconfirm -Syua"
+
       - name: "Install AUR packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
