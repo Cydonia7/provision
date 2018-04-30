@@ -131,6 +131,8 @@
         when: not dotfiles.stat.exists
 
       - name: Update XFCE theme configuration and enable XFCE numlock
+        become: true
+        become_user: "{{user}}"
         copy:
             src: "./{{item}}"
             dest: "/home/{{user}}/.config/xfce4/xfconf/xfce-perchannel-xml/{{item}}"
@@ -141,8 +143,10 @@
             - xfce4-desktop.xml
       
       - name: Download background
+        become: true
+        become_user: "{{user}}"
         get_url:
-            url: https://i.redd.it/ctjsjzuy6icz.jpg
+            url: "https://images.unsplash.com/photo-1502741126161-b048400d085d?ixlib=rb-0.3.5&s=ce892d99d3c97626f2c3e5f9c45cfdbe&auto=format&fit=crop&w=2100&q=80"
             dest: "/home/{{user}}/Images/background.jpg"
 
       - name: Update background for i3lock
@@ -151,14 +155,18 @@
         become_user: "{{user}}"
 
       - name: Set favorites for start menu
+        become: true
+        become_user: "{{user}}"
         replace:
             path: "/home/{{user}}/.config/xfce4/panel/whiskermenu-8.rc"
             regexp: "favorites="
             replace: "favorites=terminator.desktop,exo-web-browser.desktop"
      
       - name: Enable numlock globally
+        become: true
+        become_user: "{{user}}"
         lineinfile:
             path: "/home/{{user}}/.xinitrc"
             line: "numlockx &"
             insertafter: "by startx"
-       
+
