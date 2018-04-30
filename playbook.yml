@@ -68,7 +68,7 @@
       - name: "Update existing packages"
         become: true
         become_user: "{{user}}"
-        shell: "pacaur --noconfirm -Syua"
+        shell: "pacaur --noconfirm -Syu"
 
       - name: "Install AUR packages (this can take a long time)"
         become: true
