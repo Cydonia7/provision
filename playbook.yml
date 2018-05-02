@@ -71,7 +71,7 @@
       - name: "Install AUR packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher betterlockscreen rofi jetbrains-toolbox google-chrome"
+        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher betterlockscreen rofi jetbrains-toolbox google-chrome i3-wm"
 
       - name: Remove sudo rule for pacaur
         file:
@@ -148,6 +148,9 @@
         become: true
         become_user: "{{user}}"
 
+      - name: Chmod 755 on home to access background image from LightDM
+        shell: "chmod 755 /home/{{user}}"
+
       - name: Set favorites for start menu
         become: true
         become_user: "{{user}}"
@@ -169,4 +172,12 @@
         become_user: "{{user}}"
         shell: 'ssh-keygen -t rsa -b 2048 -f /home/{{user}}/.ssh/id_rsa -q -N ""'
         when: not dotfiles.stat.exists
+
+      - name: Update lightdm config
+        copy:
+            src: "./{{item}}"
+            dest: "/etc/lightdm/{{item}}"
+        with_items:
+            - lightdm.conf
+            - lightdm-gtk-greeter.conf
 
