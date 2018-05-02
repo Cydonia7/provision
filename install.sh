@@ -9,8 +9,5 @@ git clone https://github.com/Cydonia7/provision.git
 cd provision
 pacman --noconfirm -S ansible
 echo "localhost ansible_connection=local" > /etc/ansible/hosts
-ansible-playbook --extra-vars "user=$USER" playbook.yml
-cd ..
-rm -rf provision
-reboot
-
+ansible-playbook --extra-vars "user=`who | awk '{print $1}'`" playbook.yml \
+&& cd .. && rm -rf provision && reboot
