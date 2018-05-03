@@ -5,9 +5,9 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-git clone https://github.com/Cydonia7/provision.git
+USER=`who | awk '{print $1}'`
+sudo -u $USER git clone https://github.com/Cydonia7/provision.git
 cd provision
 pacman --noconfirm -S ansible
 echo "localhost ansible_connection=local" > /etc/ansible/hosts
-ansible-playbook --extra-vars "user=`who | awk '{print $1}'`" playbook.yml \
-&& cd .. && rm -rf provision && reboot
+ansible-playbook --extra-vars "user=$USER" playbook.yml
