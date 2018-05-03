@@ -1,7 +1,7 @@
 ---
 - hosts: all
   tasks:
-      - name: Ensure user can use pacman (to bypass pacaur root protection)
+      - name: Ensure user can use pacman (to bypass pacman root protection)
         shell: "sh -c \"echo '{{user}} ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/{{user}}-allow-to-sudo-pacman\""
 
       - name: Install packages
@@ -57,11 +57,14 @@
             - "SigLevel = Never"
             - "Server = http://repo.archlinux.fr/$arch"
 
-      - name: "Install pacaur"
+      - name: "Install yaourt and pacaur"
         pacman:
-            name: pacaur
+            name: "{{item}}"
             state: latest
             update_cache: yes
+        with_items:
+            - yaourt
+            - pacaur
 
       - name: "Update existing packages"
         become: true
