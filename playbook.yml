@@ -93,8 +93,8 @@
         become_user: "{{user}}"
         shell: font-manager -i /tmp/operator-mono/src/Operator\ Mono
 
-      - name: Enable Docker service
-        shell: systemctl enable docker
+      - name: Enable Docker and DHCPCD service
+        shell: systemctl enable docker && systemctl enable dhcpcd
 
       - name: Enable Dnsmasq service
         shell: systemctl enable dnsmasq && systemctl start dnsmasq
@@ -103,7 +103,7 @@
         shell: "gpasswd -a {{user}} docker"
 
       - name: Use Dnsmasq as the first nameserver
-        shell: echo "nameserver 127.0.0.1" > /etc/resolv.conf.head
+        shell: echo "nameserver 127.0.0.1\nnameserver 1.1.1.1" > /etc/resolv.conf.head
         when: not dotfiles.stat.exists
 
       - name: Create Dnsmasq config directory
