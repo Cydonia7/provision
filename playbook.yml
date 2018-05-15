@@ -191,3 +191,16 @@
             path: "/home/{{user}}/.z"
             state: touch
 
+      - name: "Put freetype in infinality mode"
+        lineinfile:
+            dest: "/etc/profile.d/freetype2.sh"
+            state: "present"
+            line: "export FREETYPE_PROPERTIES=\"truetype:interpreter-version=38\""
+
+      - name: "Adjust font settings"
+        shell: "sh -c \"cd /etc/fonts/conf.d && ln -sf ../conf.avail/{{item}}.conf\""
+        with_items:
+            - 10-hinting-slight
+            - 10-sub-pixel-rgb
+            - 11-lcdfilter-default
+
