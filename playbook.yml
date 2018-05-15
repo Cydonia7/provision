@@ -103,7 +103,7 @@
         shell: "gpasswd -a {{user}} docker"
 
       - name: Use Dnsmasq as the first nameserver
-        shell: echo "nameserver 127.0.0.1\nnameserver 1.1.1.1" > /etc/resolv.conf.head
+        shell: echo -e "nameserver 127.0.0.1\nnameserver 1.1.1.1" > /etc/resolv.conf.head
         when: not dotfiles.stat.exists
 
       - name: Create Dnsmasq config directory
@@ -183,4 +183,11 @@
         with_items:
             - lightdm.conf
             - lightdm-gtk-greeter.conf
+
+      - name: Create file for z
+        become: true
+        become_user: "{{user}}"
+        file:
+            path: "/home/{{user}}/.z"
+            state: touch
 
