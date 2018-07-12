@@ -74,7 +74,7 @@
       - name: "Install AUR packages (this can take a long time)"
         become: true
         become_user: "{{user}}"
-        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher betterlockscreen rofi jetbrains-toolbox google-chrome i3-gaps wireless_tools jsoncpp libmpdclient polybar feh xautolock bat provision"
+        shell: "pacaur --needed --noconfirm -S font-manager docker docker-compose ttf-roboto arc-icon-theme arc-gtk-theme numlockx the_silver_searcher betterlockscreen rofi jetbrains-toolbox google-chrome i3-gaps wireless_tools jsoncpp libmpdclient polybar feh xautolock bat python-i3-py compton"
 
       - name: Remove sudo rule for pacaur
         file:
